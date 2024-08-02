@@ -1,11 +1,11 @@
-from src.rag.naive_rag import naive_rag
+from src.rag.naive_rag import NaiveRAG
 from src.rag.hyde import HyDE
 
 
 class RAG_Factory:
 
     SUPPORTED_RAG_TYPES = {
-        "naive": naive_rag,
+        "naive": NaiveRAG,
         "hyde": HyDE
     }
 

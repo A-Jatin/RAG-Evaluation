@@ -1,4 +1,5 @@
 from ragas import evaluate
+from datasets import Dataset
 from ragas.metrics import (
     answer_relevancy,
     faithfulness,
@@ -8,22 +9,46 @@ from ragas.metrics import (
 
 
 class RagasEvaluation:
-
-    def __init__(self, responses):
-        self.responses = responses # [{"query": , "response": , "sourced_documents": }]
-        self.eval_chains = {
-            m.name: RagasEvaluatorChain(metric=m)
-            for m in [faithfulness, answer_relevancy, context_precision, context_recall]
-        }
+    def __init__(self, results, llm):
+        self.results = results
+        self.llm = llm
 
     def evaluate(self):
-        """Returns the aggregated evaluation results for all responses."""
-        results = {m.name: [] for m in self.eval_chains.values()}
-        for response in self.responses:
-            for name, eval_chain in self.eval_chains.items():
-                results[name].append(eval_chain.evaluate(response))
-        # Aggregate the results
-        return {
-            name: sum(scores) / len(scores)
-            for name, scores in results.items()
-        }
+        dataset = Dataset.from_dict(self.results)
+        result = evaluate(
+            dataset,
+            metrics=[
+                context_precision,
+                faithfulness,
+                answer_relevancy,
+                context_recall,
+            ],
+            llm=self.llm
+        )
+
+        return result
+
+
+def evaluate_ragas(dataset):
+
+    from ragas.metrics import (
+        answer_relevancy,
+        faithfulness,
+        context_recall,
+        context_precision,
+    )
+
+    result = evaluate(
+        dataset,
+        metrics=[
+            context_precision,
+            faithfulness,
+            answer_relevancy,
+            context_recall,
+        ],
+    )
+
+    return result
+
+dataset = load_dataset("explodinggradients/amnesty_qa", "english_v2")
+print(evaluate_ragas(dataset["eval"]))

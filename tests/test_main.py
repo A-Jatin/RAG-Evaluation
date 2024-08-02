@@ -1,7 +1,7 @@
 import bs4
 from langchain_community.document_loaders import WebBaseLoader
 
-from main import evaluate_query
+from main import evaluate_query, evaluate_rag
 
 
 def test_evaluate_query():
@@ -21,3 +21,8 @@ def test_evaluate_query():
     assert results
     assert isinstance(results, dict)
     assert results.keys()
+
+
+def test_evaluate_rag():
+    results = evaluate_rag()
+    print(results)

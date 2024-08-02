@@ -1,7 +1,6 @@
 from langchain_chroma import Chroma
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from configuration import CHUNK_SIZE, CHUNK_OVERLAP
+from src.common.utils import format_texts
 
 
 class ChromaRetriever:
@@ -11,7 +10,6 @@ class ChromaRetriever:
         self.docs = docs
 
     def create_vectorstore(self):
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-        splits = text_splitter.split_documents(self.docs)
-        vectorstore = Chroma.from_documents(documents=splits, embedding=self.embeddings)
+        formatted_texts = [format_texts(doc) for doc in self.docs]
+        vectorstore = Chroma.from_texts(texts=formatted_texts, embedding=self.embeddings)
         return vectorstore

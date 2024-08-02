@@ -1,5 +1,6 @@
 import os
 
+from datasets import load_dataset
 from langchain.chat_models import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 
@@ -16,7 +17,6 @@ def evaluate_query(docs, query):
     vectorstore = ChromaRetriever(docs=docs, embeddings=OpenAIEmbeddings()).create_vectorstore()
     retriever = vectorstore.as_retriever()
     results = {}
-    evaluations = {}
     for rag_type in RAG_Factory.SUPPORTED_RAG_TYPES.keys():
         rag = RAG_Factory(rag_type).build()
         results[rag_type] = rag(retriever, llm, RAG_PROMPT)(query)
@@ -24,18 +24,25 @@ def evaluate_query(docs, query):
 
 
 def evaluate_rag():
-    from datasets import load_dataset
+    evaluations = []
+    for dataset_name, dataset_split in EVAL_DATASETS:
+        dataset = load_dataset(dataset_name, trust_remote_code=True)
 
-    for dataset_name in EVAL_DATASETS:
-        dataset = load_dataset(dataset_name)
-        vectorstore = ChromaRetriever(docs=dataset["train"]["document"], embeddings=OpenAIEmbeddings()).\
-            create_vectorstore()
+        vectorstore = ChromaRetriever(docs=[context for context in dataset[dataset_split]["contexts"] if context],
+                                      embeddings=OpenAIEmbeddings()).create_vectorstore()
         retriever = vectorstore.as_retriever()
         for rag_type in RAG_Factory.SUPPORTED_RAG_TYPES.keys():
             rag = RAG_Factory(rag_type).build()
             llm = ChatOpenAI(model=MODEL_NAME)
-            results = rag(retriever, llm, RAG_PROMPT)(dataset["eval"]["query"])
-            evaluation = RagasEvaluation(results, llm).evaluate()
-            print(f"Dataset: {dataset_name}, RAG Type: {rag_type}, Evaluation: {evaluation}")
-            print(results)
+            dataset_with_results = []
+            for row in dataset[dataset_split]:
+                row["answer"] = rag(retriever, llm, RAG_PROMPT)(row["question"])
+                dataset_with_results.append(row)
+            evaluation = RagasEvaluation(dataset_with_results, llm).evaluate()
+            evaluations.append({"dataset_name": dataset_name, "rag_type": rag_type, "evaluation": evaluation})
+    return evaluations
 
+
+if __name__ == "__main__":
+    evaluations = evaluate_rag()
+    print(evaluations)

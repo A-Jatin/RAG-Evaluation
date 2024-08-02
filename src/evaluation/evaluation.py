@@ -14,7 +14,7 @@ class RagasEvaluation:
         self.llm = llm
 
     def evaluate(self):
-        dataset = Dataset.from_dict(self.results)
+        dataset = Dataset.from_list(self.results)
         result = evaluate(
             dataset,
             metrics=[
@@ -49,6 +49,3 @@ def evaluate_ragas(dataset):
     )
 
     return result
-
-dataset = load_dataset("explodinggradients/amnesty_qa", "english_v2")
-print(evaluate_ragas(dataset["eval"]))

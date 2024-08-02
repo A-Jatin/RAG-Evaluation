@@ -27,25 +27,3 @@ class RagasEvaluation:
         )
 
         return result
-
-
-def evaluate_ragas(dataset):
-
-    from ragas.metrics import (
-        answer_relevancy,
-        faithfulness,
-        context_recall,
-        context_precision,
-    )
-
-    result = evaluate(
-        dataset,
-        metrics=[
-            context_precision,
-            faithfulness,
-            answer_relevancy,
-            context_recall,
-        ],
-    )
-
-    return result

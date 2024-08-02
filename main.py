@@ -13,8 +13,9 @@ os.environ["OPENAI_API_KEY"] = OPENAI_KEY
 def run_query(docs, query):
     llm = ChatOpenAI(model=MODEL_NAME)
     vectorstore = ChromaRetriever(docs=docs, embeddings=OpenAIEmbeddings()).create_vectorstore()
+    retriever = vectorstore.as_retriever()
     results = {}
     for rag_type in RAG_Factory.SUPPORTED_RAG_TYPES.keys():
         rag = RAG_Factory(rag_type).build()
-        results[rag_type] = rag(llm, vectorstore, RAG_PROMPT, query)
+        results[rag_type] = rag(retriever, llm, RAG_PROMPT)(query)
     return results

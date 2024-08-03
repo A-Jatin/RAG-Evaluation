@@ -29,15 +29,15 @@ To evaluate the performance of each retrieval method, I defined four key metrics
 I executed both Naive RAG and HyDE retrieval methods on the QA dataset. The results for each method based on the defined metrics are as follows:
 
 **Naive RAG Retrieval**:
-- Context Precision: 0.9167
-- Faithfulness: 0.6004
-- Answer Relevancy: 0.9721
+- Context Precision: 0.9208
+- Faithfulness: 0.9533
+- Answer Relevancy: 0.9619
 - Context Recall: 0.9500
 
 **HyDE Retrieval**:
-- Context Precision: 0.9169
-- Faithfulness: 0.6148
-- Answer Relevancy: 0.9715
+- Context Precision: 0.9209
+- Faithfulness: 0.9917
+- Answer Relevancy: 0.9596
 - Context Recall: 0.9500
 
 ### Analysis and Insights
